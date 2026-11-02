@@ -1,0 +1,10 @@
+chemistry-lab/
+├── api/
+│   ├── _lib.js
+│   ├── chat.js
+│   └── knowledge.js
+│       └── [id].js
+├── AIChat.jsx
+├── App.jsx
+├── package.json
+└── ...
