@@ -1,8 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import AcidBaseLab from './AcidBaseLab.jsx';
-import ChemistryAcademy, { LESSONS as ACADEMY_LESSONS, QUESTIONS as ACADEMY_QUESTIONS } from './ChemistryAcademy.jsx';
-import { CHEMICALS as ACID_BASE_CHEMICALS, EQUIPMENT as ACID_BASE_EQUIPMENT, REACTIONS as ACID_BASE_REACTIONS } from './AcidBaseLab.jsx';
-import AIChat from './AIChat.jsx';
+om './AIChat.jsx';
 import { 
   Atom, Beaker, FlaskConical, Flame, BookOpen, Award, Sparkles, RefreshCw, Plus, Minus, 
   Search, Info, CheckCircle2, AlertTriangle, HelpCircle, ChevronRight, 
@@ -46,49 +42,91 @@ const DETAILED_ELEMENTS = [
 
 // Helper to fill procedural element cards for full 118 grid visualization
 const generateFullPeriodicTable = () => {
-  const categories = ["alkali", "alkaline", "transition", "post-transition", "metalloid", "nonmetal", "halogen", "noble", "lanthanide", "actinide"];
-  const list = [...DETAILED_ELEMENTS];
-  const existingNumbers = new Set(list.map(e => e.n));
-
-  // Placeholder symbol list for procedural filling
+  // Official element symbols in atomic-number order (1–118).
   const symbols = [
-    "Sc","Ti","V","Cr","Mn","Fe","Co","Ni","Ga","Ge","As","Se","Kr","Rb","Sr","Y","Zr","Nb","Mo","Tc","Ru","Rh","Pd","Cd","In","Sn","Sb","Te","I","Xe",
-    "Cs","Ba","La","Ce","Pr","Nd","Pm","Sm","Eu","Gd","Tb","Dy","Ho","Er","Tm","Yb","Lu","Hf","Ta","W","Re","Os","Ir","Pt","Tl","Pb","Bi","Po","At","Rn",
-    "Fr","Ra","Ac","Th","Pa","U","Np","Pu","Am","Cm","Bk","Cf","Es","Fm","Md","No","Lr","Rf","Db","Sg","Bh","Hs","Mt","Ds","Rg","Cn","Nh","Fl","Mc","Lv","Ts","Og"
+    "H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne",
+    "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar",
+    "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn",
+    "Ga", "Ge", "As", "Se", "Br", "Kr",
+    "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd",
+    "In", "Sn", "Sb", "Te", "I", "Xe",
+    "Cs", "Ba", "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu",
+    "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg",
+    "Tl", "Pb", "Bi", "Po", "At", "Rn",
+    "Fr", "Ra", "Ac", "Th", "Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr",
+    "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn",
+    "Nh", "Fl", "Mc", "Lv", "Ts", "Og"
   ];
 
-  let symIdx = 0;
-  for (let i = 1; i <= 118; i++) {
-    if (!existingNumbers.has(i)) {
-      const sym = symbols[symIdx] || `E${i}`;
-      symIdx++;
-      let grp = (i <= 56 || (i >= 72 && i <= 88) || i >= 104) ? ((i - 1) % 18) + 1 : 3;
-      let prd = i <= 2 ? 1 : i <= 10 ? 2 : i <= 18 ? 3 : i <= 36 ? 4 : i <= 54 ? 5 : i <= 86 ? 6 : 7;
-      let cat = categories[i % categories.length];
-      if (i >= 57 && i <= 71) cat = "lanthanide";
-      if (i >= 89 && i <= 103) cat = "actinide";
+  const positions = (n) => {
+    if (n === 1) return { group: 1, period: 1 };
+    if (n === 2) return { group: 18, period: 1 };
+    if (n >= 3 && n <= 4) return { group: n - 2, period: 2 };
+    if (n >= 5 && n <= 10) return { group: n + 8, period: 2 };
+    if (n >= 11 && n <= 12) return { group: n - 10, period: 3 };
+    if (n >= 13 && n <= 18) return { group: n, period: 3 };
+    if (n >= 19 && n <= 36) return { group: n - 18, period: 4 };
+    if (n >= 37 && n <= 54) return { group: n - 36, period: 5 };
+    if (n >= 55 && n <= 56) return { group: n - 54, period: 6 };
+    if (n >= 57 && n <= 71) return { group: n - 54, period: 8 };
+    if (n >= 72 && n <= 86) return { group: n - 68, period: 6 };
+    if (n >= 87 && n <= 88) return { group: n - 86, period: 7 };
+    if (n >= 89 && n <= 103) return { group: n - 86, period: 9 };
+    return { group: n - 100, period: 7 };
+  };
 
-      list.push({
-        n: i,
-        s: sym,
-        nameEN: `Element ${i}`,
-        nameFA: `عنصر ${i}`,
-        mass: +(i * 2.1).toFixed(2),
-        cat,
-        group: grp,
-        period: prd,
-        config: `[Core] ${i % 8}s²`,
-        p: i,
-        e: i,
-        n_count: Math.round(i * 1.2),
-        ox: "+2",
-        state: i > 92 ? "Synthetic" : "Solid",
-        factEN: `Synthetic or trace heavy element atomic number ${i}.`,
-        factFA: `عنصر سنگین یا مصنوعی با عدد اتمی ${i}.`
-      });
+  const categoryFor = (n, group) => {
+    if (n >= 57 && n <= 71) return "lanthanide";
+    if (n >= 89 && n <= 103) return "actinide";
+    if (group === 1) return "alkali";
+    if (group === 2) return "alkaline";
+    if (group >= 3 && group <= 12) return "transition";
+    if ([5, 14, 32, 33, 51, 52].includes(n)) return "metalloid";
+    if ([13, 31, 49, 50, 81, 82, 83, 84].includes(n)) return "post-transition";
+    if (group === 17) return "halogen";
+    if (group === 18) return "noble";
+    return "nonmetal";
+  };
+
+  const detailedByNumber = new Map(DETAILED_ELEMENTS.map(element => [element.n, element]));
+
+  return symbols.map((symbol, index) => {
+    const n = index + 1;
+    const position = positions(n);
+    const existing = detailedByNumber.get(n);
+
+    // Keep verified records intact, but always use the canonical symbol and position.
+    if (existing) {
+      return {
+        ...existing,
+        s: symbol,
+        group: position.group,
+        period: position.period,
+        cat: categoryFor(n, position.group)
+      };
     }
-  }
-  return list.sort((a, b) => a.n - b.n);
+
+    // These entries are intentionally display placeholders, not fabricated chemistry data.
+    return {
+      n,
+      s: symbol,
+      nameEN: `Element ${n}`,
+      nameFA: `عنصر ${n}`,
+      mass: null,
+      cat: categoryFor(n, position.group),
+      group: position.group,
+      period: position.period,
+      config: null,
+      p: n,
+      e: n,
+      n_count: null,
+      ox: null,
+      state: null,
+      factEN: "This element's detailed record has not yet been verified in the site database.",
+      factFA: "اطلاعات علمی تفصیلی این عنصر هنوز در پایگاه داده سایت تأیید نشده است.",
+      isVerifiedRecord: false
+    };
+  });
 };
 
 const ALL_ELEMENTS = generateFullPeriodicTable();
@@ -150,7 +188,11 @@ const VALIDATED_REACTIONS = [
     reactants: { "HCl": 1, "NaOH": 1 },
     tempRequired: 20,
     products: { "NaCl": 1, "H2O": 1 },
-    eq: "HCl + NaOH ➔ NaCl + H₂O",
+    eq: "HCl + NaOH ➔ NaCimport React, { useState, useEffect, useRef, useMemo } from 'react';
+import AcidBaseLab from './AcidBaseLab.jsx';
+import ChemistryAcademy, { LESSONS as ACADEMY_LESSONS, QUESTIONS as ACADEMY_QUESTIONS } from './ChemistryAcademy.jsx';
+import { CHEMICALS as ACID_BASE_CHEMICALS, EQUIPMENT as ACID_BASE_EQUIPMENT, REACTIONS as ACID_BASE_REACTIONS } from './AcidBaseLab.jsx';
+import AIChat frl + H₂O",
     colorChange: "rgba(244, 63, 94, 0.15)", // Goes from vibrant pink phenolphthalein to clear neutral
     effervescence: false,
     ppt: null,
@@ -337,9 +379,9 @@ export default function App() {
     let mass = 0;
     Object.entries(workspaceAtoms).forEach(([sym, count]) => {
       const elem = ALL_ELEMENTS.find(e => e.s === sym);
-      if (elem) mass += elem.mass * count;
+      if (elem && Number.isFinite(elem.mass)) mass += elem.mass * count;
     });
-    return mass.toFixed(3);
+    return mass > 0 ? mass.toFixed(3) : "—";
   }, [workspaceAtoms]);
 
   // Matched Known Compound
@@ -515,7 +557,7 @@ export default function App() {
 
               <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
                 <ListFilter className="w-4 h-4 text-cyan-400 shrink-0" />
-                {["all", "alkali", "alkaline", "transition", "nonmetal", "halogen", "noble"].map(cat => (
+                {["all", "alkali", "alkaline", "transition", "post-transition", "metalloid", "nonmetal", "halogen", "noble", "lanthanide", "actinide"].map(cat => (
                   <button
                     key={cat}
                     onClick={() => setPtFilterCat(cat)}
@@ -533,11 +575,14 @@ export default function App() {
 
             {/* Periodic Table Grid */}
             <div className="bg-[#0f172a]/90 p-4 rounded-3xl border border-slate-800 shadow-2xl overflow-x-auto">
-              <div className="min-w-[850px] grid grid-cols-18 gap-1.5 text-center">
+              <div className="min-w-[1050px] grid grid-cols-18 auto-rows-[76px] gap-1.5 text-center">
                 {ALL_ELEMENTS.map(elem => {
-                  const matchSearch = elem.s.toLowerCase().includes(ptSearch.toLowerCase()) || 
-                                      elem.nameEN.toLowerCase().includes(ptSearch.toLowerCase()) ||
-                                      elem.n.toString() === ptSearch;
+                  const query = ptSearch.trim().toLowerCase();
+                  const matchSearch = !query ||
+                                      elem.s.toLowerCase().includes(query) ||
+                                      elem.nameEN.toLowerCase().includes(query) ||
+                                      elem.nameFA.toLowerCase().includes(query) ||
+                                      String(elem.n) === query;
                   const matchCat = ptFilterCat === 'all' || elem.cat === ptFilterCat;
                   const isHighlighted = matchSearch && matchCat;
 
@@ -560,7 +605,7 @@ export default function App() {
                     >
                       <span className="text-[9px] opacity-70 self-start font-mono">{elem.n}</span>
                       <span className="text-base font-black tracking-tight">{elem.s}</span>
-                      <span className="text-[9px] truncate font-medium">{t(elem.nameEN, elem.nameFA)}</span>
+                      <span className="text-[9px] leading-tight line-clamp-2 font-medium">{t(elem.nameEN, elem.nameFA)}</span>
                     </div>
                   );
                 })}
@@ -593,19 +638,19 @@ export default function App() {
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
                       <span className="text-slate-400">{t("Standard Atomic Weight", "جرم اتمی استاندارد")}</span>
-                      <p className="text-sm font-bold text-slate-200 mt-1">{selectedElement.mass} g/mol</p>
+                      <p className="text-sm font-bold text-slate-200 mt-1">{Number.isFinite(selectedElement.mass) ? `${selectedElement.mass} g/mol` : t("Not verified", "تأیید نشده")}</p>
                     </div>
                     <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
                       <span className="text-slate-400">{t("Electron Configuration", "آرایش الکترونی")}</span>
-                      <p className="text-sm font-bold text-cyan-300 mt-1 font-mono">{selectedElement.config}</p>
+                      <p className="text-sm font-bold text-cyan-300 mt-1 font-mono">{selectedElement.config || t("Not verified", "تأیید نشده")}</p>
                     </div>
                     <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
                       <span className="text-slate-400">{t("Protons / Electrons / Neutrons", "پروتون / الکترون / نوترون")}</span>
-                      <p className="text-sm font-bold text-emerald-400 mt-1">{selectedElement.p} p⁺ / {selectedElement.e} e⁻ / {selectedElement.n_count} n⁰</p>
+                      <p className="text-sm font-bold text-emerald-400 mt-1">{selectedElement.p} p⁺ / {selectedElement.e} e⁻ / {selectedElement.n_count ?? t("n/a", "نامشخص")} n⁰</p>
                     </div>
                     <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
                       <span className="text-slate-400">{t("State at STP", "حالت در شرایط استاندارد")}</span>
-                      <p className="text-sm font-bold text-amber-400 mt-1">{selectedElement.state}</p>
+                      <p className="text-sm font-bold text-amber-400 mt-1">{selectedElement.state || t("Not verified", "تأیید نشده")}</p>
                     </div>
                   </div>
 
@@ -877,6 +922,11 @@ export default function App() {
       {/* FOOTER */}
       <footer className="border-t border-slate-800/80 bg-[#0b0f19] py-4 text-center text-xs text-slate-500">
         <p>{t("Chemistry Lab: Atom to Molecule • Built for Scientific Exploration", "آزمایشگاه شیمی: از اتم تا مولکول • طراحی شده برای کاوش علمی")}</p>
+      </footer>
+
+    </div>
+  );
+}
       </footer>
 
     </div>
