@@ -1,8 +1,8 @@
-om './AIChat.jsx';
-import { 
-  Atom, Beaker, FlaskConical, Flame, BookOpen, Award, Sparkles, RefreshCw, Plus, Minus, 
-  Search, Info, CheckCircle2, AlertTriangle, HelpCircle, ChevronRight, 
-  RotateCcw, Zap, Droplet, Thermometer, ShieldAlert, Languages, Volume2, 
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import AcidBaseLab from './AcidBaseLab.jsx';
+import ChemistryAcademy, { LESSONS as ACADEMY_LESSONS, QUESTIONS as ACADEMY_QUESTIONS } from './ChemistryAcademy.jsx';
+import { CHEMICALS as ACID_BASE_CHEMICALS, EQUIPMENT as ACID_BASE_EQUIPMENT, REACTIONS as ACID_BASE_REACTIONS } from './AcidBaseLab.jsx';
+import AIChat from './AIChat.jsx';
   VolumeX, Play, MessageSquare, ListFilter, TestTube, Lightbulb, UserCheck, Scale
 } from 'lucide-react';
 
